@@ -3,6 +3,7 @@ function puts(m){
 }
 
 var olSaveAsTypeMap ={
+  'PDF'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word 形式 (.doc)
   'olDoc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word 形式 (.doc)
   'olHTML'       : { value: 5  , ext: '.html' } , // HTML 形式 (.html)
   'olICal'       : { value: 8  , ext: '.ics'  } , // iCal 形式 (.ics)
@@ -17,24 +18,25 @@ var olSaveAsTypeMap ={
 };
 
 var MsgFile = function(msgFilePath){
-  this.path = msgFilePath;
-  this.word = new ActiveXObject("Word.Application");
-  this.outlook = new ActiveXObject("Outlook.Application");
-  this.fso = new ActiveXObject("Scripting.FileSystemObject");
+  this.path     = msgFilePath;
+  this.word     = new ActiveXObject("Word.Application");
+  this.outlook  = new ActiveXObject("Outlook.Application");
+  this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
-  this.saveType = olSaveAsTypeMap['olDoc'];
+  this.saveType = olSaveAsTypeMap['olHTML'];
 };
 
 MsgFile.prototype = {
   extract: function (){
+    puts(this.path);
     var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
     var filePath = mailDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
-    puts(filePath);
     this.removeSignature();
     this.mailItem.SaveAs( filePath, this.saveType.value );
-    if(this.saveType.value == 4 ){
+    if(this.saveType.isPDF == true ){
       this.convertToPDF(filePath);
       this.word.quit();
+      this.fso.deleteFile(filePath);
     }
     this.extractAttachments(mailDirPath);
   },
@@ -88,7 +90,7 @@ MsgFile.prototype = {
   }
 };
 
-function extractMsgFileInSubfolder(folderPath){
+function convertMsgToPDFInSubfolders(folderPath){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
   var targetFolder = fso.getFolder(folderPath);
   var fileEnum = new Enumerator(targetFolder.files);
@@ -101,14 +103,14 @@ function extractMsgFileInSubfolder(folderPath){
   }
   var folderEnum = new Enumerator(targetFolder.SubFolders);
   for(; !folderEnum.atEnd(); folderEnum.moveNext()){
-    extractMsgFileInSubfolder(folderEnum.item().path);
+    convertMsgToPDFInSubfolders(folderEnum.item().path);
   }
 }
 
 function main(){
   var shell = new ActiveXObject("WScript.shell");
   var baseDir = shell.CurrentDirectory;
-  extractMsgFileInSubfolder(baseDir);
+  convertMsgToPDFInSubfolders(baseDir);
 }
 
 main();
