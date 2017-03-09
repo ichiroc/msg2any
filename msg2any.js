@@ -11,43 +11,20 @@ function createMsgFolder(fileName){
 }
 
 var olSaveAsTypeMap ={
-  'olDoc'        : 4, // Microsoft Office Word 形式 (.doc)
-  'olHTML'       : 5, // HTML 形式 (.html)
-  'olICal'       : 8, // iCal 形式 (.ics)
-  'olMHTML'      : 10,// MIME HTML 形式 (.mht)
-  'olMSG'        : 3, // Outlook メッセージ形式 (.msg)
-  'olMSGUnicode' : 9, // Outlook Unicode メッセージ形式 (.msg)
-  'olRTF'        : 1, // リッチ テキスト形式 (.rtf)
-  'olTemplate'   : 2, // Microsoft Outlook テンプレート (.oft)
-  'olTXT'        : 0, // テキスト形式 (.txt)
-  'olVCal'       : 7, // VCal 形式 (.vcs)
-  'olVCard'      : 6 // VCard 形式 (.vcf)
+  'olDoc'        : { value: 4  , ext: '.doc' }, // Microsoft Office Word 形式 (.doc)
+  'olHTML'       : { value: 5  , ext: '.html' } , // HTML 形式 (.html)
+  'olICal'       : { value: 8  , ext: '.ics' } , // iCal 形式 (.ics)
+  'olMHTML'      : { value: 10 , ext: '.mht' } , // MIME HTML 形式 (.mht)
+  'olMSG'        : { value: 3  , ext: '.msg' } , // Outlook メッセージ形式 (.msg)
+  'olMSGUnicode' : { value: 9  , ext: '.msg' } , // Outlook Unicode メッセージ形式 (.msg)
+  'olRTF'        : { value: 1  , ext: '.rtf' } , // リッチ テキスト形式 (.rtf)
+  'olTemplate'   : { value: 2  , ext: '.oft' } , // Microsoft Outlook テンプレート (.oft)
+  'olTXT'        : { value: 0  , ext: '.txt' } , // テキスト形式 (.txt)
+  'olVCal'       : { value: 7  , ext: '.vcs' } , // VCal 形式 (.vcs)
+  'olVCard'      : { value: 6  , ext: '.vcf' }  // VCard 形式 (.vcf)
 };
 
-function main(){
-  var olDoc;
-  var olHTML;
-  var olICal;
-  var olMHTML;
-  var olMSG;
-  var olMSGUnicode;
-  var olRTF;
-  var olTemplate;
-  var olTXT;
-  var olVCal;
-  var olVCard;
 
-  olDoc        = 4 ;// Microsoft Office Word 形式 (.doc)
-  olHTML       = 5 ;// HTML 形式 (.html)
-  olICal       = 8 ;// iCal 形式 (.ics)
-  olMHTML      = 10;// MIME HTML 形式 (.mht)
-  olMSG        = 3 ;// Outlook メッセージ形式 (.msg)
-  olMSGUnicode = 9 ;// Outlook Unicode メッセージ形式 (.msg)
-  olRTF        = 1 ;// リッチ テキスト形式 (.rtf)
-  olTemplate   = 2 ;// Microsoft Outlook テンプレート (.oft)
-  olTXT        = 0 ;// テキスト形式 (.txt)
-  olVCal       = 7 ;// VCal 形式 (.vcs)
-  olVCard      = 6 ;// VCard 形式 (.vcf)
 
   var ol = new ActiveXObject("Outlook.Application");
   var fso = new ActiveXObject("Scripting.FileSystemObject");
@@ -59,7 +36,7 @@ function main(){
       var msgItem =  ol.CreateItemFromTemplate(fe.item().path);
 
       var dirName = createMsgFolder(fileName);
-      msgItem.SaveAs(dirName + "\\" + fileName.replace(".msg","") + ".doc", olDoc);
+      msgItem.SaveAs(dirName + "\\" + fileName.replace(".msg","") + saveType.ext , saveType.value );
       var ae = new Enumerator(msgItem.attachments);
       for(; !ae.atEnd(); ae.moveNext()){
         var attachment = ae.item();
