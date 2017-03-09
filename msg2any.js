@@ -105,20 +105,24 @@ MsgFile.prototype = {
   }
 };
 
-function convertMsgToPDFInSubfolders(folderPath){
+function convertMsgToAnyInSubfolders(folderPath){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
   var targetFolder = fso.getFolder(folderPath);
   var fileEnum = new Enumerator(targetFolder.files);
   for(; !fileEnum.atEnd(); fileEnum.moveNext()){
     var fileName = fileEnum.item().name;
     if(fileName.match(/\.msg$/)){
-      var msgFile = new MsgFile({filePath: fileEnum.item().path});
+      var msgFilePath = fileEnum.item().path;
+      puts("Converting: " + msgFilePath);
+      var msgFile = new MsgFile({filePath: msgFilePath});
       msgFile.extract();
     }
   }
   var folderEnum = new Enumerator(targetFolder.SubFolders);
   for(; !folderEnum.atEnd(); folderEnum.moveNext()){
-    convertMsgToPDFInSubfolders(folderEnum.item().path);
+    var path = folderEnum.item().path;
+    puts("Searching: " + path);
+    convertMsgToAnyInSubfolders(path);
   }
 }
 
@@ -129,7 +133,7 @@ function main(){
   puts("");
   var shell = new ActiveXObject("WScript.shell");
   var baseDir = shell.CurrentDirectory;
-  convertMsgToPDFInSubfolders(baseDir);
+  convertMsgToAnyInSubfolders(baseDir);
   puts("");
   puts("Finished.");
 }
