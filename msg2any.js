@@ -84,7 +84,7 @@ MsgFile.prototype = {
   },
   convertToPDF: function(path){
     var file = this.word.Documents.open(path,false,false,false);
-    file.saveAs2(path.replace('.doc', '.pdf'), 17);
+    file.saveAs2(path.replace(/\.doc$/, '.pdf'), 17);
     file.close();
   },
   replaceInvalidChar: function(sourceStr, repChar){
