@@ -16,18 +16,18 @@ function puts(m){
 }
 
 var olSaveAsTypeMap ={
-  'PDF'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word 形式 (.doc)
-  'olDoc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word 形式 (.doc)
-  'olHTML'       : { value: 5  , ext: '.html' } , // HTML 形式 (.html)
-  'olICal'       : { value: 8  , ext: '.ics'  } , // iCal 形式 (.ics)
-  'olMHTML'      : { value: 10 , ext: '.mht'  } , // MIME HTML 形式 (.mht)
-  'olMSG'        : { value: 3  , ext: '.msg'  } , // Outlook メッセージ形式 (.msg)
-  'olMSGUnicode' : { value: 9  , ext: '.msg'  } , // Outlook Unicode メッセージ形式 (.msg)
-  'olRTF'        : { value: 1  , ext: '.rtf'  } , // リッチ テキスト形式 (.rtf)
-  'olTemplate'   : { value: 2  , ext: '.oft'  } , // Microsoft Outlook テンプレート (.oft)
-  'olTXT'        : { value: 0  , ext: '.txt'  } , // テキスト形式 (.txt)
-  'olVCal'       : { value: 7  , ext: '.vcs'  } , // VCal 形式 (.vcs)
-  'olVCard'      : { value: 6  , ext: '.vcf'  }   // VCard 形式 (.vcf)
+  'PDF'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word (.doc)
+  'olDoc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word (.doc)
+  'olHTML'       : { value: 5  , ext: '.html' } , // HTML (.html)
+  'olICal'       : { value: 8  , ext: '.ics'  } , // iCal (.ics)
+  'olMHTML'      : { value: 10 , ext: '.mht'  } , // MIME HTML (.mht)
+  'olMSG'        : { value: 3  , ext: '.msg'  } , // Outlook Message (.msg)
+  'olMSGUnicode' : { value: 9  , ext: '.msg'  } , // Outlook Unicode Message (.msg)
+  'olRTF'        : { value: 1  , ext: '.rtf'  } , // Rich Text (.rtf)
+  'olTemplate'   : { value: 2  , ext: '.oft'  } , // Microsoft Outlook Template (.oft)
+  'olTXT'        : { value: 0  , ext: '.txt'  } , // Tet (.txt)
+  'olVCal'       : { value: 7  , ext: '.vcs'  } , // VCal (.vcs)
+  'olVCard'      : { value: 6  , ext: '.vcf'  }   // VCard (.vcf)
 };
 
 var MsgFile = function(msgFilePath){
