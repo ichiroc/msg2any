@@ -1,10 +1,9 @@
 function puts(m){
-//  WScript.echo(m);
+  WScript.echo(m);
 }
 function createFolder(dirPath){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
   if(!fso.folderexists(dirPath)){
-    puts(dirPath);
     fso.createFolder(dirPath);
   }
   return(dirPath);
@@ -35,8 +34,11 @@ var MsgFile = function(msgFilePath){
 
 MsgFile.prototype = {
   extract: function (){
-    var dirPath = createFolder(this.path.replace(".msg","[MSG]"));
+    var dirPath = this.path.replace(/\.msg$/,"");
+    dirPath = this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
+    createFolder(dirPath);
     var filePath = dirPath + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
+    puts(filePath);
     this._mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.value == 4 ){
       this.convertToPDF(filePath);
@@ -58,16 +60,18 @@ MsgFile.prototype = {
   replaceInvalidChar: function(sourceStr, repChar){
     repChar = repChar || '_';
     return sourceStr.replace( "\\", repChar)
-      .replace( "/", repChar)
-      .replace( ":", repChar)
-      .replace( "*", repChar)
-      .replace( "?", repChar)
-      .replace( "\"", repChar)
-      .replace( "<", repChar)
-      .replace( ">", repChar)
-      .replace( "|", repChar)
-      .replace( "[", repChar)
-      .replace( "]", repChar);
+      .replace( / /g  , repChar)
+      .replace( /\//g  , repChar)
+      .replace( /\:/g  , repChar)
+      .replace( /\*/g  , repChar)
+      .replace( /\?/g  , repChar)
+      .replace( /\\"/g , repChar)
+      .replace( /\</g  , repChar)
+      .replace( /\>/g  , repChar)
+      .replace( /\|/g  , repChar)
+      .replace( /\[/g  , repChar)
+      .replace( /\]/g  , repChar)
+      .replace( /_+/g  , repChar);
   }
 };
 
