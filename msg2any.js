@@ -20,7 +20,7 @@ var MsgFile = function(args){
   this.outlook  = new ActiveXObject("Outlook.Application");
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.path     = args['filePath'];
-  this.mailItem = this.outlook.CreateItemFromTemplate(this.path);
+  this.mailItem = this.outlook.getNamespace('MAPI').OpenSharedItem(this.path);
   var type = args['type'] || 'pdf';
   this.setSaveType(type);
 };
@@ -46,18 +46,12 @@ MsgFile.prototype = {
   extract: function(saveDirPath){
     saveDirPath = saveDirPath || this.createFolder(this.convertToMailFolderPath(this.path));
     var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
-    this.removeSignature();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
       this.convertToPDF(filePath);
       this.fso.deleteFile(filePath);
     }
     this.extractAttachments(saveDirPath);
-  },
-  removeSignature: function(){
-    // Outlook が起動していないと全く同じファイルを処理しているのに WordEditor が Null になる問題
-    var signature = this.mailItem.getInspector.WordEditor.Bookmarks("_MailAutoSig");
-    signature.Range.Text = "";
   },
   attachments: function(){
     return this.mailItem.attachments;
