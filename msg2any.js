@@ -16,7 +16,6 @@ function puts(m){
 }
 
 var MsgFile = function(args){
-  this.word     = new ActiveXObject("Word.Application");
   this.outlook  = new ActiveXObject("Outlook.Application");
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.path     = args['filePath'];
@@ -44,14 +43,12 @@ MsgFile.prototype = {
     this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
   },
   extract: function (){
-    puts(this.path);
     var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
     var filePath = mailDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     this.removeSignature();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
       this.convertToPDF(filePath);
-      this.word.quit();
       this.fso.deleteFile(filePath);
     }
     this.extractAttachments(mailDirPath);
@@ -83,9 +80,14 @@ MsgFile.prototype = {
     return(dirPath);
   },
   convertToPDF: function(path){
-    var file = this.word.Documents.open(path,false,false,false);
-    file.saveAs2(path.replace(/\.doc$/, '.pdf'), 17);
-    file.close();
+    var word = new ActiveXObject("Word.Application");
+    try{
+      var file = word.Documents.open(path,false,false,false);
+      file.saveAs2(path.replace(/\.doc$/, '.pdf'), 17);
+      file.close();
+    }finally{
+      word.quit();
+    }
   },
   replaceInvalidChar: function(sourceStr, repChar){
     repChar = repChar || '_';
