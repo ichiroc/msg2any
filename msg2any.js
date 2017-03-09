@@ -15,31 +15,34 @@ function puts(m){
   WScript.echo(m);
 }
 
-var olSaveAsTypeMap ={
-  'PDF'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word (.doc)
-  'olDoc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word (.doc)
-  'olHTML'       : { value: 5  , ext: '.html' } , // HTML (.html)
-  'olICal'       : { value: 8  , ext: '.ics'  } , // iCal (.ics)
-  'olMHTML'      : { value: 10 , ext: '.mht'  } , // MIME HTML (.mht)
-  'olMSG'        : { value: 3  , ext: '.msg'  } , // Outlook Message (.msg)
-  'olMSGUnicode' : { value: 9  , ext: '.msg'  } , // Outlook Unicode Message (.msg)
-  'olRTF'        : { value: 1  , ext: '.rtf'  } , // Rich Text (.rtf)
-  'olTemplate'   : { value: 2  , ext: '.oft'  } , // Microsoft Outlook Template (.oft)
-  'olTXT'        : { value: 0  , ext: '.txt'  } , // Tet (.txt)
-  'olVCal'       : { value: 7  , ext: '.vcs'  } , // VCal (.vcs)
-  'olVCard'      : { value: 6  , ext: '.vcf'  }   // VCard (.vcf)
-};
-
-var MsgFile = function(msgFilePath){
-  this.path     = msgFilePath;
+var MsgFile = function(args){
   this.word     = new ActiveXObject("Word.Application");
   this.outlook  = new ActiveXObject("Outlook.Application");
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
-  this.mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
-  this.saveType = olSaveAsTypeMap['olHTML'];
+  this.path     = args['filePath'];
+  this.mailItem = this.outlook.CreateItemFromTemplate(this.path);
+  var type = args['type'] || 'txt';
+  this.setSaveType(type);
 };
 
 MsgFile.prototype = {
+  olSaveAsTypeMap : {
+    'pdf'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word (.doc)
+    'doc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word (.doc)
+    'html'       : { value: 5  , ext: '.html' } , // HTML (.html)
+    'ical'       : { value: 8  , ext: '.ics'  } , // iCal (.ics)
+    'mhtml'      : { value: 10 , ext: '.mht'  } , // MIME HTML (.mht)
+    'msg'        : { value: 3  , ext: '.msg'  } , // Outlook Message (.msg)
+    'msgunicode' : { value: 9  , ext: '.msg'  } , // Outlook Unicode Message (.msg)
+    'rtf'        : { value: 1  , ext: '.rtf'  } , // Rich Text (.rtf)
+    'template'   : { value: 2  , ext: '.oft'  } , // Microsoft Outlook Template (.oft)
+    'txt'        : { value: 0  , ext: '.txt'  } , // Tet (.txt)
+    'vcal'       : { value: 7  , ext: '.vcs'  } , // VCal (.vcs)
+    'vcard'      : { value: 6  , ext: '.vcf'  }   // VCard (.vcf)
+  },
+  setSaveType: function(type){
+    this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
+  },
   extract: function (){
     puts(this.path);
     var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
@@ -110,7 +113,7 @@ function convertMsgToPDFInSubfolders(folderPath){
   for(; !fileEnum.atEnd(); fileEnum.moveNext()){
     var fileName = fileEnum.item().name;
     if(fileName.match(/\.msg$/)){
-      var msgFile = new MsgFile(fileEnum.item().path);
+      var msgFile = new MsgFile({filePath: fileEnum.item().path});
       msgFile.extract();
     }
   }
