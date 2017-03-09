@@ -54,6 +54,7 @@ MsgFile.prototype = {
     this.extractAttachments(mailDirPath);
   },
   removeSignature: function(){
+    // Outlook が起動していないと全く同じファイルを処理しているのに WordEditor が Null になる問題
     var signature = this.mailItem.getInspector.WordEditor.Bookmarks("_MailAutoSig");
     signature.Range.Text = "";
   },
