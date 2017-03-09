@@ -54,7 +54,7 @@ MsgFile.prototype = {
     this.extractAttachments(mailDirPath);
   },
   removeSignature: function(){
-    var signature = this.mailItem.getInspector().WordEditor.bookmarks("_MailAutoSig");
+    var signature = this.mailItem.getInspector.WordEditor.Bookmarks("_MailAutoSig");
     signature.Range.Text = "";
   },
   attachments: function(){
