@@ -21,7 +21,7 @@ var MsgFile = function(args){
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.path     = args['filePath'];
   this.mailItem = this.outlook.CreateItemFromTemplate(this.path);
-  var type = args['type'] || 'txt';
+  var type = args['type'] || 'pdf';
   this.setSaveType(type);
 };
 
