@@ -28,7 +28,7 @@ var MsgFile = function(msgFilePath){
   this.word = new ActiveXObject("Word.Application");
   this.outlook = new ActiveXObject("Outlook.Application");
   this.fso = new ActiveXObject("Scripting.FileSystemObject");
-  this._mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
+  this.mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
   this.saveType = olSaveAsTypeMap['olDoc'];
 };
 
@@ -37,14 +37,14 @@ MsgFile.prototype = {
     var dirPath = this.path.replace(/\.msg$/,"");
     dirPath = this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
     createFolder(dirPath);
-    var filePath = dirPath + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
+    var filePath = dirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     puts(filePath);
-    this._mailItem.SaveAs( filePath, this.saveType.value );
+    this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.value == 4 ){
       this.convertToPDF(filePath);
       this.word.quit();
     }
-    var aEnum = new Enumerator(this._mailItem.attachments);
+    var aEnum = new Enumerator(this.mailItem.attachments);
     for(; !aEnum.atEnd(); aEnum.moveNext()){
       var attachment = aEnum.item();
       var attachmentDirName = createFolder(dirPath + "\\attachments");
