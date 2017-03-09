@@ -26,7 +26,7 @@ var MsgFile = function(args){
 
 MsgFile.prototype = {
   olSaveAsTypeMap : {
-    'pdf'          : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word (.doc)
+    'pdf'        : { value: 4  , ext: '.doc', isPDF: true } , // Microsoft Office Word (.doc)
     'doc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word (.doc)
     'html'       : { value: 5  , ext: '.html' } , // HTML (.html)
     'ical'       : { value: 8  , ext: '.ics'  } , // iCal (.ics)
