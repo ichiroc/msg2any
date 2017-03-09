@@ -4,10 +4,11 @@ function puts(m){
 var shell = new ActiveXObject("WScript.shell");
 var BASE_DIR = shell.CurrentDirectory;
 
-function createMsgFolder(fileName){
+function createFolder(fileName){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
-  var dirName = BASE_DIR + "\\" + fileName.replace(".msg","");
+  var dirName = fileName;
   if(!fso.folderexists(dirName)){
+    puts(dirName);
     fso.createFolder(dirName);
   }
   return(dirName);
@@ -37,14 +38,14 @@ var MsgFile = function(msgFilePath){
 
 MsgFile.prototype = {
   extract: function (){
-    var dirName = createMsgFolder(this.fso.getBaseName(this.path));
-    puts(dirName);
-    var filePath = dirName + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
+    var dirPath = createFolder(this.path.replace(".msg",""));
+    var filePath = dirPath + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
     this._mailItem.SaveAs( filePath, this.saveType.value );
     var aEnum = new Enumerator(this._mailItem.attachments);
     for(; !aEnum.atEnd(); aEnum.moveNext()){
       var attachment = aEnum.item();
-      attachment.SaveAsFile(dirName + "\\" + attachment.FileName);
+      var attachmentDirName = createFolder(dirPath + "\\attachments");
+      attachment.SaveAsFile(attachmentDirName + "\\" + attachment.FileName);
     }
   },
   replaceInvalidChar: function(sourceStr, repChar){
@@ -62,7 +63,6 @@ MsgFile.prototype = {
       .replace( "]", repChar);
   }
 };
-
 
 function main(){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
