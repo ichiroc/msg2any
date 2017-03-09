@@ -16,6 +16,7 @@ function puts(m){
 }
 
 var MsgFile = function(args){
+  args = args || {};
   this.outlook  = new ActiveXObject("Outlook.Application");
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.path     = args['filePath'];
@@ -42,16 +43,16 @@ MsgFile.prototype = {
   setSaveType: function(type){
     this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
   },
-  extract: function (){
-    var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
-    var filePath = mailDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
+  extract: function(saveDirPath){
+    saveDirPath = saveDirPath || this.createFolder(this.convertToMailFolderPath(this.path));
+    var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     this.removeSignature();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
       this.convertToPDF(filePath);
       this.fso.deleteFile(filePath);
     }
-    this.extractAttachments(mailDirPath);
+    this.extractAttachments(saveDirPath);
   },
   removeSignature: function(){
     // Outlook が起動していないと全く同じファイルを処理しているのに WordEditor が Null になる問題
