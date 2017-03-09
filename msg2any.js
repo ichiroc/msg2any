@@ -1,13 +1,6 @@
 function puts(m){
   WScript.echo(m);
 }
-function createFolder(dirPath){
-  var fso = new ActiveXObject("Scripting.FileSystemObject");
-  if(!fso.folderexists(dirPath)){
-    fso.createFolder(dirPath);
-  }
-  return(dirPath);
-}
 
 var olSaveAsTypeMap ={
   'olDoc'        : { value: 4  , ext: '.doc'  } , // Microsoft Office Word 形式 (.doc)
@@ -34,23 +27,38 @@ var MsgFile = function(msgFilePath){
 
 MsgFile.prototype = {
   extract: function (){
-    var dirPath = this.path.replace(/\.msg$/,"");
-    dirPath = this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
-    createFolder(dirPath);
-    var filePath = dirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
+    var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
+    var filePath = mailDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     puts(filePath);
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.value == 4 ){
       this.convertToPDF(filePath);
       this.word.quit();
     }
-    var aEnum = new Enumerator(this.mailItem.attachments);
+    this.extractAttachments(mailDirPath);
+  },
+  attachments: function(){
+    return this.mailItem.attachments;
+  },
+  extractAttachments: function(baseDirPath){
+    var aEnum = new Enumerator(this.attachments());
     for(; !aEnum.atEnd(); aEnum.moveNext()){
       var attachment = aEnum.item();
-      var attachmentDirName = createFolder(dirPath + "\\attachments");
+      var attachmentDirName = this.createFolder(baseDirPath + "\\attachments");
       var wordFilePath = attachmentDirName + "\\" + attachment.FileName;
       attachment.SaveAsFile(wordFilePath);
     }
+  },
+  convertToMailFolderPath:function(path){
+    var dirPath = path.replace(/\.msg$/,"");
+    return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
+  },
+  createFolder: function(dirPath){
+    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    if(!fso.folderexists(dirPath)){
+      fso.createFolder(dirPath);
+    }
+    return(dirPath);
   },
   convertToPDF: function(path){
     var file = this.word.Documents.open(path,false,false,false);
