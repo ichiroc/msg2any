@@ -1,3 +1,6 @@
+function puts(m){
+  WScript.echo(m);
+}
 var shell = new ActiveXObject("WScript.shell");
 var BASE_DIR = shell.CurrentDirectory;
 
@@ -24,24 +27,52 @@ var olSaveAsTypeMap ={
   'olVCard'      : { value: 6  , ext: '.vcf' }  // VCard 形式 (.vcf)
 };
 
+var MsgFile = function(msgFilePath){
+  this.path = msgFilePath;
+  this.outlook = new ActiveXObject("Outlook.Application");
+  this.fso = new ActiveXObject("Scripting.FileSystemObject");
+  this._mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
+  this.saveType = olSaveAsTypeMap['olDoc'];
+};
+
+MsgFile.prototype = {
+  extract: function (){
+    var dirName = createMsgFolder(this.fso.getBaseName(this.path));
+    puts(dirName);
+    var filePath = dirName + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
+    this._mailItem.SaveAs( filePath, this.saveType.value );
+    var aEnum = new Enumerator(this._mailItem.attachments);
+    for(; !aEnum.atEnd(); aEnum.moveNext()){
+      var attachment = aEnum.item();
+      attachment.SaveAsFile(dirName + "\\" + attachment.FileName);
+    }
+  },
+  replaceInvalidChar: function(sourceStr, repChar){
+    repChar = repChar || '_';
+    return sourceStr.replace( "\\", repChar)
+      .replace( "/", repChar)
+      .replace( ":", repChar)
+      .replace( "*", repChar)
+      .replace( "?", repChar)
+      .replace( "\"", repChar)
+      .replace( "<", repChar)
+      .replace( ">", repChar)
+      .replace( "|", repChar)
+      .replace( "[", repChar)
+      .replace( "]", repChar);
+  }
+};
 
 
-  var ol = new ActiveXObject("Outlook.Application");
+function main(){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
   var currentFolder = fso.getFolder(BASE_DIR);
   var fe = new Enumerator(currentFolder.files);
   for(; !fe.atEnd(); fe.moveNext()){
     var fileName = fe.item().name;
     if(fileName.match(/\.msg$/)){
-      var msgItem =  ol.CreateItemFromTemplate(fe.item().path);
-
-      var dirName = createMsgFolder(fileName);
-      msgItem.SaveAs(dirName + "\\" + fileName.replace(".msg","") + saveType.ext , saveType.value );
-      var ae = new Enumerator(msgItem.attachments);
-      for(; !ae.atEnd(); ae.moveNext()){
-        var attachment = ae.item();
-        attachment.SaveAsFile(dirName + "\\" + attachment.FileName);
-      }
+      var msgFile = new MsgFile(fe.item().path);
+      msgFile.extract();
     }
   }
 }
