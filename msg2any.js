@@ -44,7 +44,7 @@ MsgFile.prototype = {
     this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
   },
   extract: function(saveDirPath){
-    saveDirPath = saveDirPath || this.createFolder(this.convertToMailFolderPath(this.path));
+    saveDirPath = saveDirPath || this.createFolder(this.getMailFolderPath(this.path));
     var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
@@ -65,7 +65,7 @@ MsgFile.prototype = {
       attachment.SaveAsFile(wordFilePath);
     }
   },
-  convertToMailFolderPath:function(path){
+  getMailFolderPath:function(path){
     var dirPath = path.replace(/\.msg$/,"");
     return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
   },
