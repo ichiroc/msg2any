@@ -26,6 +26,7 @@ var olSaveAsTypeMap ={
 
 var MsgFile = function(msgFilePath){
   this.path = msgFilePath;
+  this.word = new ActiveXObject("Word.Application");
   this.outlook = new ActiveXObject("Outlook.Application");
   this.fso = new ActiveXObject("Scripting.FileSystemObject");
   this._mailItem = this.outlook.CreateItemFromTemplate(msgFilePath);
@@ -37,12 +38,22 @@ MsgFile.prototype = {
     var dirPath = createFolder(this.path.replace(".msg","[MSG]"));
     var filePath = dirPath + "\\" + this.replaceInvalidChar(this._mailItem.subject) + this.saveType.ext;
     this._mailItem.SaveAs( filePath, this.saveType.value );
+    if(this.saveType.value == 4 ){
+      this.convertToPDF(filePath);
+      this.word.quit();
+    }
     var aEnum = new Enumerator(this._mailItem.attachments);
     for(; !aEnum.atEnd(); aEnum.moveNext()){
       var attachment = aEnum.item();
       var attachmentDirName = createFolder(dirPath + "\\attachments");
-      attachment.SaveAsFile(attachmentDirName + "\\" + attachment.FileName);
+      var wordFilePath = attachmentDirName + "\\" + attachment.FileName;
+      attachment.SaveAsFile(wordFilePath);
     }
+  },
+  convertToPDF: function(path){
+    var file = this.word.Documents.open(path,false,false,false);
+    file.saveAs2(path.replace('.doc', '.pdf'), 17);
+    file.close();
   },
   replaceInvalidChar: function(sourceStr, repChar){
     repChar = repChar || '_';
