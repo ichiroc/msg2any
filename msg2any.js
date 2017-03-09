@@ -30,12 +30,17 @@ MsgFile.prototype = {
     var mailDirPath = this.createFolder(this.convertToMailFolderPath(this.path));
     var filePath = mailDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     puts(filePath);
+    this.removeSignature();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.value == 4 ){
       this.convertToPDF(filePath);
       this.word.quit();
     }
     this.extractAttachments(mailDirPath);
+  },
+  removeSignature: function(){
+    var signature = this.mailItem.getInspector().WordEditor.bookmarks("_MailAutoSig");
+    signature.Range.Text = "";
   },
   attachments: function(){
     return this.mailItem.attachments;
