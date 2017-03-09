@@ -124,9 +124,15 @@ function convertMsgToPDFInSubfolders(folderPath){
 }
 
 function main(){
+  puts("Starting...");
+  puts("This script convert all [.msg] files in subfolders to any type you want[Default: PDF].");
+  puts("Currently support PDF(Default), DOC(Not docx), HTML, MHTML, RTF, TXT.");
+  puts("");
   var shell = new ActiveXObject("WScript.shell");
   var baseDir = shell.CurrentDirectory;
   convertMsgToPDFInSubfolders(baseDir);
+  puts("");
+  puts("Finished.");
 }
 
 main();
