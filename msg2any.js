@@ -77,9 +77,8 @@ MsgFile.prototype = {
     return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
   },
   createFolder: function(dirPath){
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
-    if(!fso.folderexists(dirPath)){
-      fso.createFolder(dirPath);
+    if(!this.fso.folderexists(dirPath)){
+      this.fso.createFolder(dirPath);
     }
     return(dirPath);
   },
