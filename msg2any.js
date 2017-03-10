@@ -15,6 +15,32 @@ function puts(m){
   WScript.echo(m);
 }
 
+var util = {
+  fso : new ActiveXObject('Scripting.FileSystemObject'),
+  createFolder: function(dirPath){
+    if(!this.fso.folderexists(dirPath)){
+      this.fso.createFolder(dirPath);
+    }
+    return(dirPath);
+  },
+  replaceInvalidChar: function(sourceStr, repChar){
+    repChar = repChar || '_';
+    return sourceStr.replace( "\\", repChar)
+      .replace( / /g  , repChar)
+      .replace( /\//g  , repChar)
+      .replace( /\:/g  , repChar)
+      .replace( /\*/g  , repChar)
+      .replace( /\?/g  , repChar)
+      .replace( /\\"/g , repChar)
+      .replace( /\</g  , repChar)
+      .replace( /\>/g  , repChar)
+      .replace( /\|/g  , repChar)
+      .replace( /\[/g  , repChar)
+      .replace( /\]/g  , repChar)
+      .replace( /_+/g  , repChar);
+  }
+};
+
 var MsgFile = function(args){
   args = args || {};
   this.outlook  = new ActiveXObject("Outlook.Application");
@@ -45,8 +71,8 @@ MsgFile.prototype = {
   },
   extract: function(saveDirPath){
     saveDirPath = saveDirPath || this.getMailFolderPath(this.path);
-    this.createFolder(saveDirPath);
-    var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
+    util.createFolder(saveDirPath);
+    var filePath = saveDirPath + "\\" + util.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     this.replaceRecipientDisplayNameToAddress();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
@@ -62,20 +88,14 @@ MsgFile.prototype = {
     var aEnum = new Enumerator(this.attachments());
     for(; !aEnum.atEnd(); aEnum.moveNext()){
       var attachment = aEnum.item();
-      var attachmentDirName = this.createFolder(baseDirPath + "\\attachments");
+      var attachmentDirName = util.createFolder(baseDirPath + "\\attachments");
       var wordFilePath = attachmentDirName + "\\" + attachment.FileName;
       attachment.SaveAsFile(wordFilePath);
     }
   },
-  getMailFolderPath:function(path){
+  getMailFolderPath: function(path){
     var dirPath = path.replace(/\.msg$/,"");
-    return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + this.replaceInvalidChar(this.fso.getBaseName(dirPath));
-  },
-  createFolder: function(dirPath){
-    if(!this.fso.folderexists(dirPath)){
-      this.fso.createFolder(dirPath);
-    }
-    return(dirPath);
+    return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + util.replaceInvalidChar(this.fso.getBaseName(dirPath));
   },
   convertToPDF: function(path){
     var word = new ActiveXObject("Word.Application");
@@ -87,29 +107,24 @@ MsgFile.prototype = {
       word.quit();
     }
   },
-  replaceInvalidChar: function(sourceStr, repChar){
-    repChar = repChar || '_';
-    return sourceStr.replace( "\\", repChar)
-      .replace( / /g  , repChar)
-      .replace( /\//g  , repChar)
-      .replace( /\:/g  , repChar)
-      .replace( /\*/g  , repChar)
-      .replace( /\?/g  , repChar)
-      .replace( /\\"/g , repChar)
-      .replace( /\</g  , repChar)
-      .replace( /\>/g  , repChar)
-      .replace( /\|/g  , repChar)
-      .replace( /\[/g  , repChar)
-      .replace( /\]/g  , repChar)
-      .replace( /_+/g  , repChar);
-  },
   replaceRecipientDisplayNameToAddress: function(){
+    var recipients = new Recipients(this.mailItem.recipients);
+    recipients.convertedToBetterName();
+  }
+};
+
+var Recipients = function(recipents){
+  this.recipients = recipents;
+};
+
+Recipients.prototype = {
+  convertedToBetterName :function() {
     var recipients = this.getPlainRecipients();
     this.removeAllRecipients();
     for(var i = 0 ; i < recipients.length; i++){
       var recipient = recipients[i];
-      var c = this.mailItem.recipients.add(this.getRecipientName(recipient));
-      c.type = recipient.type;
+      var r = this.recipients.add(this.getRecipientName(recipient));
+      r.type = recipient.type;
     }
   },
   getRecipientName: function(plainRecipient){
@@ -121,7 +136,7 @@ MsgFile.prototype = {
   },
   getPlainRecipients: function(){
     var newRecipients = [];
-    var rEnum = new Enumerator(this.mailItem.recipients);
+    var rEnum = new Enumerator(this.recipients);
     for(; !rEnum.atEnd(); rEnum.moveNext()){
       var recipient = rEnum.item();
       var r = {};
@@ -133,8 +148,8 @@ MsgFile.prototype = {
     return newRecipients;
   },
   removeAllRecipients: function(){
-    for(var i = 1; i <= this.mailItem.recipients.count ; i++ ){
-      this.mailItem.recipients.remove(i);
+    for(var i = 1; i <= this.recipients.count ; i++ ){
+      this.recipients.remove(i);
     }
   }
 };
