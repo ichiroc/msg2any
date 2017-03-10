@@ -45,6 +45,17 @@ var util = {
       .replace( /\[/g  , repChar)
       .replace( /\]/g  , repChar)
       .replace( /_+/g  , repChar);
+  },
+  cachedFirstArgument: null,
+  firstArgument: function(){
+    var type;
+    if(this.cachedFirstArgument == null){
+      if(WScript.Arguments.length > 0){
+        type = WScript.arguments(0);
+      }
+      this.cachedFirstArgument = type;
+    }
+    return this.cachedFirstArgument;
   }
 };
 
@@ -54,8 +65,7 @@ var MsgFile = function(args){
   this.fso      = new ActiveXObject("Scripting.FileSystemObject");
   this.path     = args['filePath'];
   this.mailItem = this.outlook.getNamespace('MAPI').OpenSharedItem(this.path);
-  var type = args['type'] || 'pdf';
-  this.setSaveType(type);
+  this.setSaveType(util.firstArgument());
 };
 
 MsgFile.prototype = {
@@ -74,6 +84,7 @@ MsgFile.prototype = {
     'vcard'      : { value: 6  , ext: '.vcf'  }   // VCard (.vcf)
   },
   setSaveType: function(type){
+    type = type || 'pdf'; // Default pdf
     this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
   },
   extract: function(saveDirPath){
