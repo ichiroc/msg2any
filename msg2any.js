@@ -73,13 +73,16 @@ MsgFile.prototype = {
     saveDirPath = saveDirPath || this.getMailFolderPath(this.path);
     util.createFolder(saveDirPath);
     var filePath = saveDirPath + "\\" + util.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
-    this.replaceRecipientDisplayNameToAddress();
-    this.mailItem.SaveAs( filePath, this.saveType.value );
-    if(this.saveType.isPDF == true ){
-      this.convertToPDF(filePath);
-      this.fso.deleteFile(filePath);
-    }
+    this.extractMessage(filePath);
     this.extractAttachments(saveDirPath);
+  },
+  extractMessage: function(saveFilePath){
+    this.replaceRecipientDisplayNameToAddress();
+    this.mailItem.SaveAs( saveFilePath, this.saveType.value );
+    if(this.saveType.isPDF == true ){
+      this.convertToPDF(saveFilePath);
+      this.fso.deleteFile(saveFilePath);
+    }
   },
   extractAttachments: function(baseDirPath){
     var aEnum = new Enumerator(this.mailItem.attachments());
