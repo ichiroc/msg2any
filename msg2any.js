@@ -81,17 +81,19 @@ MsgFile.prototype = {
     }
     this.extractAttachments(saveDirPath);
   },
-  attachments: function(){
-    return this.mailItem.attachments;
-  },
   extractAttachments: function(baseDirPath){
-    var aEnum = new Enumerator(this.attachments());
+    var aEnum = new Enumerator(this.mailItem.attachments());
     for(; !aEnum.atEnd(); aEnum.moveNext()){
-      var attachment = aEnum.item();
-      var attachmentDirName = util.createFolder(baseDirPath + "\\attachments");
-      var wordFilePath = attachmentDirName + "\\" + attachment.FileName;
-      attachment.SaveAsFile(wordFilePath);
+      this.extractAttachment({ attachment: aEnum.item(),
+                               baseDirPath: baseDirPath });
     }
+  },
+  extractAttachment: function(args){
+    var baseDirPath = args['baseDirPath'];
+    var attachment  = args['attachment'];
+    var attachmentDirName = util.createFolder(baseDirPath + "\\attachments");
+    var wordFilePath = attachmentDirName + "\\" + attachment.FileName;
+    attachment.SaveAsFile(wordFilePath);
   },
   getMailFolderPath: function(path){
     var dirPath = path.replace(/\.msg$/,"");
