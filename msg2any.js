@@ -47,6 +47,7 @@ MsgFile.prototype = {
     saveDirPath = saveDirPath || this.getMailFolderPath(this.path);
     this.createFolder(saveDirPath);
     var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
+    this.replaceRecipientDisplayNameToAddress();
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
       this.convertToPDF(filePath);
@@ -101,6 +102,40 @@ MsgFile.prototype = {
       .replace( /\[/g  , repChar)
       .replace( /\]/g  , repChar)
       .replace( /_+/g  , repChar);
+  },
+  replaceRecipientDisplayNameToAddress: function(){
+    var recipients = this.getPlainRecipients();
+    this.removeAllRecipients();
+    for(var i = 0 ; i < recipients.length; i++){
+      var recipient = recipients[i];
+      var c = this.mailItem.recipients.add(this.getRecipientName(recipient));
+      c.type = recipient.type;
+    }
+  },
+  getRecipientName: function(plainRecipient){
+    if(plainRecipient.name == plainRecipient.address){
+      return plainRecipient.address ;
+    }else{
+      return plainRecipient.name + '<' + plainRecipient.address + '>';
+    }
+  },
+  getPlainRecipients: function(){
+    var newRecipients = [];
+    var rEnum = new Enumerator(this.mailItem.recipients);
+    for(; !rEnum.atEnd(); rEnum.moveNext()){
+      var recipient = rEnum.item();
+      var r = {};
+      r['address'] = recipient.address;
+      r['type'] = recipient.type;
+      r['name'] = recipient.name;
+      newRecipients.push(r);
+    }
+    return newRecipients;
+  },
+  removeAllRecipients: function(){
+    for(var i = 1; i <= this.mailItem.recipients.count ; i++ ){
+      this.mailItem.recipients.remove(i);
+    }
   }
 };
 
