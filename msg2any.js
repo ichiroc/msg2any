@@ -44,7 +44,8 @@ MsgFile.prototype = {
     this.saveType = this.olSaveAsTypeMap[type.toLowerCase()];
   },
   extract: function(saveDirPath){
-    saveDirPath = saveDirPath || this.createFolder(this.getMailFolderPath(this.path));
+    saveDirPath = saveDirPath || this.getMailFolderPath(this.path);
+    this.createFolder(saveDirPath);
     var filePath = saveDirPath + "\\" + this.replaceInvalidChar(this.mailItem.subject) + this.saveType.ext;
     this.mailItem.SaveAs( filePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
