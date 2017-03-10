@@ -87,8 +87,7 @@ MsgFile.prototype = {
     this.replaceRecipientDisplayNameToAddress();
     this.mailItem.SaveAs( saveFilePath, this.saveType.value );
     if(this.saveType.isPDF == true ){
-      this.convertToPDF(saveFilePath);
-      this.fso.deleteFile(saveFilePath);
+      this.convertToPdfFromDoc(saveFilePath);
     }
   },
   extractAttachments: function(baseDirPath){
@@ -109,12 +108,13 @@ MsgFile.prototype = {
     var dirPath = path.replace(/\.msg$/,"");
     return this.fso.getParentFolderName(dirPath) + "\\[MAIL]" + util.replaceInvalidChar(this.fso.getBaseName(dirPath));
   },
-  convertToPDF: function(path){
+  convertToPdfFromDoc: function(docPath){
     var word = new ActiveXObject("Word.Application");
     try{
-      var file = word.Documents.open(path,false,false,false);
-      file.saveAs2(path.replace(/\.doc$/, '.pdf'), 17);
+      var file = word.Documents.open(docPath);
+      file.saveAs2(docPath.replace(/\.doc$/, '.pdf'), 17);
       file.close();
+      this.fso.deleteFile(docPath);
     }finally{
       word.quit();
     }
