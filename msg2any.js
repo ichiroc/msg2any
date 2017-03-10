@@ -17,6 +17,13 @@ function puts(m){
 
 var util = {
   fso : new ActiveXObject('Scripting.FileSystemObject'),
+  progressIndex: 0,
+  showProgress: function(){
+    this.progressIndex++;
+    if((this.progressIndex % 1000) == 0){
+      puts( 'Scanned ' + this.progressIndex + ' files.');
+    }
+  },
   createFolder: function(dirPath){
     if(!this.fso.folderexists(dirPath)){
       this.fso.createFolder(dirPath);
@@ -165,6 +172,7 @@ function convertMsgToAnyInSubfolders(folderPath){
   var fileEnum = new Enumerator(targetFolder.files);
   for(; !fileEnum.atEnd(); fileEnum.moveNext()){
     var fileName = fileEnum.item().name;
+    util.showProgress();
     if(fileName.match(/\.msg$/)){
       var msgFilePath = fileEnum.item().path;
       puts("Converting: " + msgFilePath);
@@ -175,16 +183,15 @@ function convertMsgToAnyInSubfolders(folderPath){
   var folderEnum = new Enumerator(targetFolder.SubFolders);
   for(; !folderEnum.atEnd(); folderEnum.moveNext()){
     var path = folderEnum.item().path;
-    puts("Searching: " + path);
     convertMsgToAnyInSubfolders(path);
   }
 }
 
 function main(){
-  puts("Starting...");
   puts("This script convert all [.msg] files in subfolders to any type you want[Default: PDF].");
   puts("Currently support PDF(Default), DOC(Not docx), HTML, MHTML, RTF, TXT.");
   puts("");
+  puts("Starting...");
   var shell = new ActiveXObject("WScript.shell");
   var baseDir = shell.CurrentDirectory;
   convertMsgToAnyInSubfolders(baseDir);
