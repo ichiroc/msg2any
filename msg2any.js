@@ -179,7 +179,7 @@ Recipients.prototype = {
   }
 };
 
-function convertMsgToAnyInSubfolders(folderPath){
+function convertMsgFileInSubfolders(folderPath){
   var fso = new ActiveXObject("Scripting.FileSystemObject");
   var targetFolder = fso.getFolder(folderPath);
   var fileEnum = new Enumerator(targetFolder.files);
@@ -196,7 +196,7 @@ function convertMsgToAnyInSubfolders(folderPath){
   var folderEnum = new Enumerator(targetFolder.SubFolders);
   for(; !folderEnum.atEnd(); folderEnum.moveNext()){
     var path = folderEnum.item().path;
-    convertMsgToAnyInSubfolders(path);
+    convertMsgFileInSubfolders(path);
   }
 }
 
@@ -207,7 +207,7 @@ function main(){
   puts("Starting...");
   var shell = new ActiveXObject("WScript.shell");
   var baseDir = shell.CurrentDirectory;
-  convertMsgToAnyInSubfolders(baseDir);
+  convertMsgFileInSubfolders(baseDir);
   puts("");
   puts("Finished.");
 }
